@@ -1,0 +1,6 @@
+build/
+*conf
+*~
+
+# OS X
+.DS_Store

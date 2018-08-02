@@ -1,0 +1,56 @@
+version: '3'
+
+
+services:
+  memcached:
+    image: memcached:1.4-alpine
+    container_name: seafile-memcached
+    ports:
+      - "11211:11211"
+
+  pro:
+    # image: xiez/seafile-dev-pro:6.0
+    # image: xiez/seafile-dev-pro:6.2
+    # image: xiez/seafile-dev-pro:6.2.13-pro
+
+    # image: xiez/seafile-dev-pro:6.3.0-pro
+    # image: xiez/seafile-dev-pro:6.3-docs
+    # image: xiez/seafile-dev-pro:pingan-5.1
+    # image: xiez/seafile-dev-pro:ali-6.3
+
+    # image: xiez/seafile-dev-pro:6.3.0-pro-cors
+    # image: xiez/seafile-dev-pro:6.3.1-pro
+    # image: xiez/seafile-dev-pro:6.3.1-pro-dbg
+    image: xiez/seafile-dev-pro:6.3.2-pro-dbg
+
+
+    environment:
+      - DOCKER_DEV=1
+      - LOCAL_USER_ID=1000
+      - IS_PRO_VERSION=1
+      - LICENSE_DIR=/code/seaf-license # comment this value if image is pro:6.0
+      - CCNET_CONF_DIR=/code/seafile-pro-server/tests/conf
+      - SEAFILE_CONF_DIR=/code/seafile-pro-server/tests/conf/seafile-data
+      - EVENTS_CONFIG_FILE=/code/seafevents/events.conf
+      - PYTHONPATH=/code:/code/seafevents:/usr/local/lib/python2.7/dist-packages:/code/seahub/thirdpart:/code/seahub-extra
+      - PYTHON_EGG_CACHE=/tmp
+      - MIGRATE_SEAHUB_DB=1
+
+    container_name: seafile-dev-pro
+
+    # privileged: true  # used in dbg image
+
+    volumes:
+      - /Users/xiez/dev/seaf-license:/code/seaf-license
+      - /Users/xiez/dev/seafile-conf:/code/seafile-pro-server/tests/conf
+      - /Users/xiez/dev/seahub:/code/seahub
+      # - /Users/xiez/dev/seahub-extra/seahub_extra:/code/seahub_extra
+      # - /Users/xiez/dev/seafevents:/code/seafevents
+      # - /Users/xiez/dev/seafobj/seafobj:/code/seafobj
+      # - /Users/xiez/dev_docker_test/seafes:/code/seafes
+    ports:
+     - "8000:8000"
+     - "8082:8082"
+     - "3000:3000"
+    # depends_on:
+      # - memcached
