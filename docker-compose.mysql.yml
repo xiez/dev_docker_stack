@@ -3,22 +3,28 @@ version: '3'
 
 services:
   elasticsearch:
-    image: elasticsearch:2.4.6-alpine
+    # image: elasticsearch:2.4.6-alpine
+    image: elasticsearch:5.6.10
+
     volumes:
-      - /opt/es-data:/usr/share/elasticsearch/data
+      - /Users/xiez/dev_docker_stack/locales/data:/usr/share/elasticsearch/data:rw
+      - /Users/xiez/dev_docker_stack/locales/run.sh:/dev_stack/locales/run.sh
     ports:
       - "9200:9200"
       - "9300:9300"
+    command: "/dev_stack/locales/run.sh"
 
   db:
     image: mysql:5.5
     container_name: seafile-mysql
     volumes:
-      - /opt/mysql-data:/var/lib/mysql
+      - /Users/xiez/dev_docker_stack/localdb/data:/var/lib/mysql:rw
+      - /Users/xiez/dev_docker_stack/localdb/run.sh:/dev_stack/localdb/run.sh
     environment:
       - MYSQL_ROOT_PASSWORD=root
     ports:
       - "3306:3306"
+    command: "/dev_stack/localdb/run.sh"
 
   memcached:
     image: memcached:1.4-alpine
@@ -39,8 +45,13 @@ services:
     # image: xiez/seafile-dev-pro:6.3.0-pro-cors
     # image: xiez/seafile-dev-pro:6.3.1-pro
     # image: xiez/seafile-dev-pro:6.3.1-pro-dbg
-    image: xiez/seafile-dev-pro:6.3.2-pro-full
+    # image: xiez/seafile-dev-pro:6.3.2-pro-full
 
+    # image: xiez/seafile-dev-pro:6.3.2-pro-es-5
+    # image: xiez/seafile-dev-pro:6.3.2-pro-org_group_owned_repo
+
+    # image: xiez/seafile-dev-pro:6.3.2-pro-new_perms
+    image: xiez/seafile-dev-pro:6.3.2-pro-traffic_stats
 
     environment:
       - DOCKER_DEV=1
@@ -52,7 +63,7 @@ services:
       - EVENTS_CONFIG_FILE=/code/seafevents/events.conf
       - PYTHONPATH=/code:/code/seafevents:/usr/local/lib/python2.7/dist-packages:/code/seahub/thirdpart:/code/seahub-extra
       - PYTHON_EGG_CACHE=/tmp
-      - MIGRATE_SEAHUB_DB=1
+      - MIGRATE_SEAHUB_DB=0
 
     container_name: seafile-dev-pro
 
@@ -64,9 +75,10 @@ services:
       - /Users/xiez/dev/seahub:/code/seahub
       # - /Users/xiez/dev/seahub-extra/seahub_extra:/code/seahub_extra
 
-      - /Users/xiez/dev/seafevents:/code/seafevents
+      # - /Users/xiez/dev/seafevents:/code/seafevents
+      # - /Users/xiez/dev/seafes:/code/seafes
       # - /Users/xiez/dev/seafobj/seafobj:/code/seafobj
-      # - /Users/xiez/dev_docker_stack/seafes:/code/seafes
+
     ports:
      - "8000:8000"
      - "8082:8082"

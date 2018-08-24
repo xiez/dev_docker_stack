@@ -2,5 +2,11 @@ build/
 *conf
 *~
 
+# database data
+localdb/data
+
+# elasticsearch data
+locales/data
+
 # OS X
 .DS_Store

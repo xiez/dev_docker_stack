@@ -1,6 +1,9 @@
 PROJECT=seafile_dev_docker
 
-mysql.up:
+es.up:
+	docker-compose -f docker-compose.mysql.yml up elasticsearch
+
+db.up:
 	docker-compose -f docker-compose.mysql.yml up db
 
 dev.up:
