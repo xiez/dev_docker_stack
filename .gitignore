@@ -10,3 +10,9 @@ locales/data
 
 # OS X
 .DS_Store
+
+# seahub data
+seahub-data/thumbnail/*
+seahub-data/avatars/*
+!seahub-data/avatars/default.png
+!seahub-data/avatars/default-non-register.jpg

@@ -1,14 +1,13 @@
 version: '3'
 
-
 services:
   elasticsearch:
-    # image: elasticsearch:2.4.6-alpine
-    image: elasticsearch:5.6.10
+    image: elasticsearch:2.4.6-alpine
+    # image: elasticsearch:5.6.10
 
     volumes:
-      - /Users/xiez/dev_docker_stack/locales/data:/usr/share/elasticsearch/data:rw
-      - /Users/xiez/dev_docker_stack/locales/run.sh:/dev_stack/locales/run.sh
+      - ./locales/data:/usr/share/elasticsearch/data:rw
+      - ./locales/run.sh:/dev_stack/locales/run.sh
     ports:
       - "9200:9200"
       - "9300:9300"
@@ -18,19 +17,13 @@ services:
     image: mysql:5.5
     container_name: seafile-mysql
     volumes:
-      - /Users/xiez/dev_docker_stack/localdb/data:/var/lib/mysql:rw
-      - /Users/xiez/dev_docker_stack/localdb/run.sh:/dev_stack/localdb/run.sh
+      - ./localdb/data:/var/lib/mysql:rw
+      - ./localdb/run.sh:/dev_stack/localdb/run.sh
     environment:
       - MYSQL_ROOT_PASSWORD=root
     ports:
       - "3306:3306"
     command: "/dev_stack/localdb/run.sh"
-
-  redis:
-    image: redis:5.0-rc5-alpine
-    container_name: seafile-redis
-    ports:
-      - "6379:6379"
 
   memcached:
     image: memcached:1.4-alpine
@@ -38,27 +31,20 @@ services:
     ports:
       - "11211:11211"
 
+  nginx:
+    image: "nginx"
+    container_name: seafile-nginx
+    restart: always
+    volumes:
+      - ./localnginx/conf.d:/etc/nginx/conf.d
+      - media_volume:/code/seahub/media
+      - static_volume:/code/seahub/static
+    ports:
+      - "80:80"
+
   pro:
-    # image: xiez/seafile-dev-pro:6.0
-    # image: xiez/seafile-dev-pro:6.2
-    # image: xiez/seafile-dev-pro:6.2.13-pro
-
-    # image: xiez/seafile-dev-pro:6.3.0-pro
-    # image: xiez/seafile-dev-pro:6.3-docs
-    # image: xiez/seafile-dev-pro:pingan-5.1
-    # image: xiez/seafile-dev-pro:ali-6.3
-
-    # image: xiez/seafile-dev-pro:6.3.0-pro-cors
-    # image: xiez/seafile-dev-pro:6.3.1-pro
-    # image: xiez/seafile-dev-pro:6.3.1-pro-dbg
-    # image: xiez/seafile-dev-pro:6.3.2-pro-full
-
-    # image: xiez/seafile-dev-pro:6.3.2-pro-es-5
-    # image: xiez/seafile-dev-pro:6.3.2-pro-org_group_owned_repo
-
-    # image: xiez/seafile-dev-pro:6.3.2-pro-new_perms
-    # image: xiez/seafile-dev-pro:6.3.2-pro-traffic_stats
-    image: xiez/seafile-dev-pro:6.3.5-pro
+    # image: xiez/seafile-dev-pro:6.3.5-pro
+    image: xiez/seafile-dev-pro:docs-6.3.2
 
     environment:
       - DOCKER_DEV=1
@@ -71,17 +57,24 @@ services:
       - PYTHONPATH=/code:/code/seafevents:/usr/local/lib/python2.7/dist-packages:/code/seahub/thirdpart:/code/seahub-extra
       - PYTHON_EGG_CACHE=/tmp
       - MIGRATE_SEAHUB_DB=0
+      - DJANGO_SETTINGS_MODULE=seahub.settings
+      - LANG=en_US.UTF-8
+      - LC_ALL=en_US.UTF-8
+      - LC_LANG=en_US.UTF-8
+      
 
     container_name: seafile-dev-pro
 
-    # privileged: true  # used in dbg image
-
     volumes:
       - /Users/xiez/dev/seaf-license:/code/seaf-license
-      - /Users/xiez/dev_docker_stack/seafile-mysql-conf:/code/seafile-pro-server/tests/conf
-      - /Users/xiez/dev/seahub:/code/seahub
-      # - /Users/xiez/dev/seahub-extra/seahub_extra:/code/seahub_extra
+      - ./seafile-mysql-conf:/code/seafile-pro-server/tests/conf
+      - media_volume:/code/seahub/media
+      - static_volume:/code/seahub/static
+      - ./seahub-data/avatars:/code/seahub/media/avatars
+      - ./seahub-data/thumbnail/thumb:/code/seahub/seahub/thumbnail/thumb
 
+      # - /Users/xiez/dev/seahub:/code/seahub
+      # - /Users/xiez/dev/seahub-extra/seahub_extra:/code/seahub_extra
       # - /Users/xiez/dev/seafevents:/code/seafevents
       # - /Users/xiez/dev/seafes:/code/seafes
       # - /Users/xiez/dev/seafobj/seafobj:/code/seafobj
@@ -91,6 +84,15 @@ services:
      - "8082:8082"
      - "3000:3000"
     depends_on:
-      - elasticsearch
       - db
       - memcached
+      - nginx
+    command: ./start-services.sh
+
+# networks:
+#   nginx_network:
+#     driver: bridge
+
+volumes:
+  media_volume:
+  static_volume:
